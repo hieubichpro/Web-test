@@ -30,7 +30,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: hieubauman/backend:latest
+    image: hieubauman/frontend:latest
     networks:
       - nginx_network
       - postgres
