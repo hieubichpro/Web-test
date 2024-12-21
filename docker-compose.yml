@@ -16,6 +16,7 @@ services:
     build:
       context: ./backend/backend
       dockerfile: Dockerfile
+    image: hieubauman/backend:latest
     depends_on:
       - postgres
     networks:
@@ -29,6 +30,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: hieubauman/backend:latest
     networks:
       - nginx_network
       - postgres
