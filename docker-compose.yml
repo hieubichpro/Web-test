@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+      POSTGRES_DB: Web2024
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - postgres
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend/backend
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    networks:
+      - postgres
+      - nginx_network
+    ports:
+      - "8081:80"
+
+  front-end:
+    container_name: front-end
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    networks:
+      - nginx_network
+      - postgres
+    ports:
+      - "3000:3000"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pg@admin.com
+      PGADMIN_DEFAULT_PASSWORD: aaa
+      # PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+      # - nginx_network
+
+  nginx:
+    image: "byjg/nginx-extras"
+    container_name: nginx_container
+    depends_on:
+      - pgadmin
+      - backend
+    volumes:
+      - ./backend/backend/nginx/my_nginx.conf:/etc/nginx/nginx.conf
+      - ./backend/backend/static:/static
+    ports:
+      - "80:80"
+    networks:
+      - nginx_network
+
+volumes:
+  postgres-data:
+  nginx_log:
+networks:
+  postgres:
+    driver: bridge
+  nginx_network:
+    driver: bridge

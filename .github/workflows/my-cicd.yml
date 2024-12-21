@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # Укажите вашу основную ветку, например, main или master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456789
+          POSTGRES_DB: Web2024
+        ports:
+          - 5432:5432
+        volumes:
+          - postgres-data:/var/lib/postgresql/data
+
+      pgadmin:
+        image: dpage/pgadmin4
+        env:
+          PGADMIN_DEFAULT_EMAIL: pg@admin.com
+          PGADMIN_DEFAULT_PASSWORD: aaa
+        ports:
+          - 5050:80
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and run Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml up -d
+
+      # - name: Run tests (если у вас есть тесты)
+      #   run: |
+      #     # Здесь вы можете добавить команды для запуска тестов
+      #     # Например, если у вас есть тесты в backend, вы можете запустить их так:
+      #     # docker-compose exec backend npm test
+
+      # - name: Shutdown services
+      #   if: always()
+      #   run: |
+      #     docker-compose -f docker-compose.yml down

@@ -1,0 +1,53 @@
+# services:
+#   - postgres:latest
+
+# variables:
+#   POSTGRES_DB: TestTestTest
+#   POSTGRES_USER: postgres
+#   POSTGRES_PASSWORD: 123456789
+#   DATABASE_URL: "Host=postgres;Port=5432;Username=postgres;Password=123456789;Database=TestTestTest"
+
+# stages:
+#   - build
+#   - unit-tests
+
+# mybuild:
+#   image: mcr.microsoft.com/dotnet/sdk:8.0
+#   stage: build
+#   tags:
+#     - iu7runner
+#   script:
+#     - dotnet publish backend/backend/backend.csproj -c Release -o srcPublish
+
+#   artifacts:
+#     expire_in: 1 hour
+#     when: on_success
+#     paths:
+#       - srcPublish
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - docker info
+  - docker-compose --version
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker-compose -f docker-compose.yml build
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose -f docker-compose.yml up -d
+  only:
+    - master # или другая ветка, на которую вы хотите запускать деплой
