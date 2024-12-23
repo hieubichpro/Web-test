@@ -1,12 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavBarAdmin } from "../UI/NavBarAdmin";
 import { TextInput } from "../UI/InputText";
 import { Button } from "../UI/Button";
 import { UserTable } from "../UI/UserTable";
-import { useState } from "react";
-import { User } from "../../types/Users";
-import { useEffect } from "react";
 import { UserService } from "../../services/UserService";
+import { User } from "../../types/Users";
 
 export const AdminUserPage = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,12 +17,15 @@ export const AdminUserPage = () => {
   });
   const [error, setError] = useState<string>("");
   const [info, setInfo] = useState<string>("");
+
   const handleUserSelect = (user: User) => {
     setNewUser(user);
   };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewUser({ ...newUser, [name]: value });
+    localStorage.setItem("newUser ", JSON.stringify(newUser));
   };
 
   const fetchUsers = async () => {
@@ -38,6 +39,13 @@ export const AdminUserPage = () => {
 
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("newUser ");
+    if (savedUser) {
+      setNewUser(JSON.parse(savedUser));
+    }
   }, []);
 
   const handleDelete = async () => {
@@ -59,6 +67,7 @@ export const AdminUserPage = () => {
       setError("Error adding user");
     }
   };
+
   const handleModify = async () => {
     try {
       await UserService.change_pass(newUser.id.toString(), {
@@ -74,8 +83,8 @@ export const AdminUserPage = () => {
   return (
     <div className="flex flex-col h-screen">
       <NavBarAdmin />
-      <div className="flex flex-grow">
-        <div className="w-1/2 border-r p-4 flex flex-col justify-center items-center">
+      <div className="flex flex-grow flex-col md:flex-row">
+        <div className="w-full md:w-1/2 border-r p-4 flex flex-col justify-center items-center">
           <TextInput
             label="Username"
             type="text"
@@ -122,8 +131,10 @@ export const AdminUserPage = () => {
             />
           </div>
         </div>
-        <div className="w-1/2 p-4">
-          <UserTable users={users} onUserSelect={handleUserSelect} />
+        <div className="w-full md:w-1/2 p-4 flex items-center justify-center">
+          <div className="w-full">
+            <UserTable users={users} onUserSelect={handleUserSelect} />
+          </div>
         </div>
       </div>
     </div>

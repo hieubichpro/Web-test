@@ -22,6 +22,7 @@ export const AdminClubPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewClub({ ...newClub, [name]: value });
+    localStorage.setItem("newClub", JSON.stringify(newClub));
   };
 
   const fetchClubs = async () => {
@@ -35,6 +36,13 @@ export const AdminClubPage = () => {
 
   useEffect(() => {
     fetchClubs();
+  }, []);
+
+  useEffect(() => {
+    const savedClub = localStorage.getItem("newClub");
+    if (savedClub) {
+      setNewClub(JSON.parse(savedClub));
+    }
   }, []);
 
   const handleDelete = async () => {
@@ -55,7 +63,6 @@ export const AdminClubPage = () => {
       setNewClub({ id: 0, name: "" });
     } catch (error) {
       setError(true);
-
       setErrorMessage("Error adding club");
     }
   };
@@ -70,7 +77,6 @@ export const AdminClubPage = () => {
       setNewClub({ id: 0, name: "" });
     } catch (error) {
       setError(true);
-
       setErrorMessage("Error modifying club");
     }
   };
@@ -78,8 +84,8 @@ export const AdminClubPage = () => {
   return (
     <div className="flex flex-col h-screen">
       <NavBarAdmin />
-      <div className="flex flex-grow">
-        <div className="w-1/2 border-r p-4 flex flex-col justify-center items-center">
+      <div className="flex flex-grow flex-col md:flex-row">
+        <div className="w-full md:w-1/2 border-r p-4 flex flex-col justify-center items-center">
           <TextInput
             label="Name"
             name="name"
@@ -108,12 +114,10 @@ export const AdminClubPage = () => {
             />
           </div>
         </div>
-        <div className="w-1/2 p-4 flex justify-center items-center">
-          {" "}
-          {/* Căn giữa */}
-          <div className="w-full">
+        <div className="w-full md:w-1/2 p-4 flex justify-center items-center">
+          <div className="w-full mt-4">
             {" "}
-            {/* Đảm bảo chiều rộng là 100% */}
+            {/* Thêm margin-top ở đây */}
             <ClubTable clubs={clubs} onClubSelect={handleClubSelect} />
           </div>
         </div>

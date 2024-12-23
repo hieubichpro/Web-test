@@ -11,7 +11,9 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className={`text-white font-bold py-2 px-4 rounded ${backgroundColor} hover:bg-red-300 transition duration-300`}
+      className={`text-white font-bold py-2 px-4 rounded ${backgroundColor} 
+                  hover:bg-red-300 transition duration-300 
+                  w-full sm:w-auto`} // Thêm lớp w-full cho màn hình nhỏ và w-auto cho màn hình lớn
       onClick={onClick}
     >
       {text}

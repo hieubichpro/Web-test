@@ -35,16 +35,20 @@ jobs:
         run: |
           docker compose -f docker-compose.yml push
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Deploy to server
-  #       run: |
-  #         # Здесь вы можете добавить команды для развертывания на вашем сервере
-  #         # Например, если вы используете SSH для доступа к серверу:
-  #         ssh -o StrictHostKeyChecking=no user@your-server-ip "cd /path/to/your/app && git pull && docker-compose -f docker-compose.yml up -d"
+      - name: Deploy to local host
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Установите SSH-ключ
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+
+        #   ssh -i private_key -o StrictHostKeyChecking=no minhhieuk19@192.168.0.1 "cd /Web2024 && docker compose -f docker-compose.yml up -d"

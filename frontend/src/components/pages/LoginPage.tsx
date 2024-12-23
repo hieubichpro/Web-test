@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Logo } from "../UI/Logo";
 import { TextInput } from "../UI/InputText";
 import { Button } from "../UI/Button";
@@ -12,17 +12,33 @@ export const Login: React.FC = () => {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // V восстанавливаем состояние формы из localStorage
+  useEffect(() => {
+    const savedLogin = localStorage.getItem("login");
+    const savedPassword = localStorage.getItem("password");
+    if (savedLogin) setLogin(savedLogin);
+    if (savedPassword) setPassword(savedPassword);
+  }, []);
+
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLogin(e.target.value);
+    const value = e.target.value;
+    setLogin(value);
+    localStorage.setItem("login", value); // Сохранение в localStorage
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
+    const value = e.target.value;
+    setPassword(value);
+    localStorage.setItem("password", value); // Сохранение в localStorage
   };
 
   const handleSignIn = () => {
     UserService.sign_in({ login, password })
       .then((res) => {
+        // Очистка localStorage при успешной авторизации
+        localStorage.removeItem("login");
+        localStorage.removeItem("password");
+
         if (res.data.role === "Admin") {
           navigate("/admin/users");
         } else {
@@ -44,6 +60,7 @@ export const Login: React.FC = () => {
         }
       });
   };
+
   const handleGuest = () => {
     navigate("/guest/leagues");
   };
@@ -51,14 +68,14 @@ export const Login: React.FC = () => {
   const handleSignUp = () => {
     navigate("/registrate");
   };
+
   return (
     <div className="flex items-center justify-center h-screen bg-blue-100">
-      <div className="bg-sky-500 p-6 rounded w-1/2 h-1/2 ml-auto flex items-center justify-center">
+      <div className="bg-sky-500 p-6 rounded w-full max-w-md h-1/2 flex items-center justify-center mb-6">
         <Logo />
       </div>
 
-      <div className="bg-white p-6 rounded w-1/2 h-1/2 ml-auto">
-        {/* <Logo /> */}
+      <div className="bg-white p-6 rounded w-full max-w-md h-1/2">
         <h2 className="text-2xl font-bold mt-10 mb-6 text-center text-sky-500">
           Login to your account
         </h2>
@@ -66,27 +83,31 @@ export const Login: React.FC = () => {
           <TextInput
             label="Username"
             type="username"
+            value={login}
             onChange={handleLoginChange}
           />
           <TextInput
             label="Password"
             type="password"
+            value={password}
             onChange={handlePasswordChange}
           />
           {error && (
             <span className="text-red-500 text-sm">{errorMessage}</span>
           )}
-          <div className="flex space-x-10 mt-10 ml-5">
-            <Button
-              text="Sign-in"
-              backgroundColor="bg-sky-500"
-              onClick={handleSignIn}
-            />
-            <Button
-              text="Guest"
-              backgroundColor="bg-yellow-500"
-              onClick={handleGuest}
-            />
+          <div className="flex flex-col space-y-4 mt-10">
+            <div className="flex justify-between">
+              <Button
+                text="Sign-in"
+                backgroundColor="bg-sky-500"
+                onClick={handleSignIn}
+              />
+              <Button
+                text="Guest"
+                backgroundColor="bg-yellow-500"
+                onClick={handleGuest}
+              />
+            </div>
             <Button
               text="Sign-up"
               backgroundColor="bg-green-500"
